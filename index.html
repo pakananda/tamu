@@ -21,9 +21,9 @@
     
     <!-- Header Web -->
     <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white text-center">
-      <div class="w-14 h-14 mx-auto items-center justify-center">
-          <img src="https://lh3.googleusercontent.com/d/1erlU3Wwr8NuIusv6FXvG3qahEv7D1eQL">
-        </div>
+      <div class="w-14 h-14 mx-auto items-center justify-center mb-2">
+        <img src="https://lh3.googleusercontent.com/d/1erlU3Wwr8NuIusv6FXvG3qahEv7D1eQL" alt="Logo" class="w-full h-full object-contain">
+      </div>
       <h1 class="text-2xl font-bold">Buku Tamu Digital</h1>
       <p class="text-blue-100 text-sm mt-1">Silakan isi formulir di bawah ini untuk pencatatan kunjungan</p>
     </div>
@@ -137,14 +137,10 @@
   </div>
 
   <script>
-    // Inisialisasi Ikon Feather
     feather.replace();
 
-    // =========================================================================
-    // MASUKKAN URL GOOGLE APPS SCRIPT WEB APP ANDA DI SINI
-    // =========================================================================
+    // URL Web App Google Apps Script
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwy7PiCBsJHyP4b7tIJjPoHbJMfcl7KwdTrATLmSgBvx8CqevpSg05QkkHeFiu6q67e/exec";
-    // =========================================================================
 
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
@@ -163,7 +159,6 @@
         currentStream.getTracks().forEach(track => track.stop());
       }
 
-      // Atur kelas cermin (mirror) hanya untuk kamera depan
       if (facingMode === "user") {
         video.classList.add('mirror');
         canvas.classList.add('mirror');
@@ -183,16 +178,13 @@
         });
     }
 
-    // Jalankan kamera saat halaman dimuat
     startCamera(useFacingMode);
 
-    // Fungsi Ganti Kamera (Depan <-> Belakang)
     function switchCamera() {
       useFacingMode = (useFacingMode === "user") ? "environment" : "user";
       startCamera(useFacingMode);
     }
 
-    // Toggle Input Textarea 'Lainnya'
     function toggleKeperluanLainnya() {
       const select = document.getElementById('keperluanSelect');
       const otherText = document.getElementById('other-keperluan');
@@ -206,7 +198,6 @@
       }
     }
 
-    // Ambil Foto & Kompresi Otomatis
     function takeSnapshot() {
       const context = canvas.getContext('2d');
       const maxWidth = 800;
@@ -221,15 +212,12 @@
       canvas.width = width;
       canvas.height = height;
 
-      // Efek pembalikan cermin pada canvas jika menggunakan kamera depan
       if (useFacingMode === "user") {
         context.translate(width, 0);
         context.scale(-1, 1);
       }
       
       context.drawImage(video, 0, 0, width, height);
-      
-      // Kompresi kualitas gambar JPEG ke 70% (0.7)
       photoData = canvas.toDataURL('image/jpeg', 0.7);
       
       video.classList.add('hidden');
@@ -242,7 +230,6 @@
       cameraStatus.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Foto Terkunci`;
     }
 
-    // Reset Kamera
     function resetCamera() {
       photoData = null;
       video.classList.remove('hidden');
@@ -255,7 +242,7 @@
       cameraStatus.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Kamera Aktif`;
     }
 
-    // Pengiriman Form via Fetch API
+    // Pengiriman Form via Fetch (Bebas Isu CORS)
     document.getElementById('guestForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
@@ -283,21 +270,18 @@
       feather.replace();
       submitBtn.disabled = true;
 
+      // Pengiriman data menggunakan mode no-cors dan URLSearchParams
       fetch(SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify(payload)
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(payload).toString()
       })
-      .then(res => res.json())
-      .then(response => {
-        if (response.result === 'success') {
-          alert("✅ Data kunjungan berhasil dicatat!");
-          location.reload();
-        } else {
-          alert("❌ Terjadi kesalahan: " + response.message);
-          submitBtn.innerHTML = `<i data-feather="send" class="w-5 h-5"></i> Kirim Data Kunjungan`;
-          feather.replace();
-          submitBtn.disabled = false;
-        }
+      .then(() => {
+        alert("✅ Data kunjungan berhasil dikirim!");
+        location.reload();
       })
       .catch(err => {
         console.error(err);
