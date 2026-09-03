@@ -4,15 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Kunjungan - SMAN Taruna Nala Jatim</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js untuk Grafik -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Ikon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-100 font-sans text-gray-800">
 
+    <!-- Header -->
     <header class="bg-blue-900 text-white shadow-lg sticky top-0 z-40">
         <div class="container mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
             
+            <!-- Bagian Kiri: Logo & Info Header -->
             <div class="flex items-center space-x-4">
                 <img src="https://lh3.googleusercontent.com/d/1erlU3Wwr8NuIusv6FXvG3qahEv7D1eQL" 
                      alt="Logo SMAN Taruna Nala" 
@@ -22,23 +27,22 @@
                     <h1 class="text-xl font-bold leading-tight text-white">
                         SMA Negeri Taruna Nala Jawa Timur
                     </h1>
-                    
                     <p class="text-xs text-blue-200 mt-0.5">
                         Dashboard Data Kunjungan Tamu
                     </p>
-
                     <div class="flex items-center space-x-2 mt-1">
                         <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                            <span id="syncPing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span id="syncDot" class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                         </span>
-                        <span class="text-[11px] text-green-300 font-medium tracking-wide">
+                        <span id="syncStatus" class="text-[11px] text-green-300 font-medium tracking-wide">
                             Real-Time Sync Active
                         </span>
                     </div>
                 </div>
             </div>
             
+            <!-- Bagian Kanan: Menu Filter Tanggal -->
             <div class="bg-blue-800/90 hover:bg-blue-800 transition p-2 rounded-lg flex items-center space-x-3 shadow-inner border border-blue-700/50">
                 <label for="filterTanggal" class="text-sm font-medium text-blue-100 flex items-center cursor-pointer">
                     <i class="fa-regular fa-calendar-days mr-2 text-yellow-400"></i> Pilih Tanggal:
@@ -50,9 +54,12 @@
         </div>
     </header>
 
+    <!-- Konten Utama -->
     <main class="container mx-auto px-6 py-8">
 
+        <!-- Info Grafis Ringkasan -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Card Total Pengunjung -->
             <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-600 flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500 font-semibold uppercase tracking-wider">Total Pengunjung Hari Ini</p>
@@ -64,6 +71,7 @@
                 </div>
             </div>
 
+            <!-- Card Grafik Ringkasan -->
             <div class="bg-white rounded-xl shadow-md p-6 md:col-span-2">
                 <h3 class="text-md font-bold text-gray-700 mb-2 flex items-center">
                     <i class="fa-solid fa-chart-line text-blue-600 mr-2"></i> Grafik Kunjungan
@@ -74,6 +82,7 @@
             </div>
         </div>
 
+        <!-- Tabel Rekapitulasi -->
         <div class="bg-white rounded-xl shadow-md overflow-hidden">
             <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
                 <h3 class="text-lg font-bold text-gray-800 flex items-center">
@@ -96,7 +105,10 @@
                     </thead>
                     <tbody id="tabelPengunjung" class="divide-y divide-gray-200 text-sm">
                         <tr>
-                            <td colspan="6" class="text-center py-8 text-gray-500">Memuat data dari Google Sheets...</td>
+                            <td colspan="6" class="text-center py-8 text-gray-500">
+                                <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-blue-600"></i><br>
+                                Memuat data real-time...
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -105,6 +117,7 @@
 
     </main>
 
+    <!-- Modal Zoom Foto -->
     <div id="photoModal" class="fixed inset-0 bg-black bg-opacity-75 hidden flex items-center justify-center z-50 p-4" onclick="closeModal()">
         <div class="relative max-w-2xl max-h-[90vh] bg-white rounded-lg p-2 overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
             <button onclick="closeModal()" class="absolute top-2 right-2 text-white bg-red-600 hover:bg-red-700 rounded-full w-8 h-8 flex items-center justify-center text-bold shadow">✕</button>
@@ -112,76 +125,96 @@
         </div>
     </div>
 
+    <!-- Script Utama -->
     <script>
-        // PASTE URL APPS SCRIPT ANDA DI SINI (Berakhiran /exec)
-        const scriptUrl = "https://script.google.com/macros/s/AKfycbxfsDZPBOMbP7OZlTv_y3TSDr2e4du4OKOIjBs5C14lW7OCs2PuONng6odNmUe1xdwC/exec";
+        // PASTE URL GOOGLE APPS SCRIPT ANDA DI SINI
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbzgfJ8qurChzgs5rk1snMgx_0-108Ew2FoR8se9eenJYcieJuGtCoOEeyjRuIQ1w665yg/exec";
 
         let allData = [];
         let myChart = null;
 
         document.addEventListener("DOMContentLoaded", () => {
-            // Set tanggal input secara default ke Hari Ini
+            // Set tanggal default ke hari ini
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('filterTanggal').value = today;
 
-            // Load data pertama kali
             fetchDataFromSheet();
 
-            // SINKRONISASI REAL-TIME: Ambil data baru secara otomatis setiap 5 detik
+            // Refresh data setiap 5 detik
             setInterval(() => {
                 fetchDataFromSheet();
             }, 5000); 
         });
 
-        // 1. FUNGSI AMBIL DATA VIA GOOGLE APPS SCRIPT (JSON REAL-TIME)
+        // FUNGSI UTAMA FETCH DATA
         function fetchDataFromSheet() {
-            fetch(scriptUrl)
-                .then(response => response.json())
-                .then(data => {
-                    allData = data.map(item => {
-                        // Format Tanggal YYYY-MM-DD
-                        let formattedDate = "";
-                        if (item.Timestamp) {
-                            let d = new Date(item.Timestamp);
-                            if (!isNaN(d.getTime())) {
-                                formattedDate = d.toISOString().split('T')[0];
-                            } else {
-                                const datePart = String(item.Timestamp).split(" ")[0];
-                                const parts = datePart.split("/");
-                                if (parts.length === 3) {
-                                    formattedDate = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
-                                }
+            fetch(scriptUrl, {
+                method: "GET",
+                redirect: "follow" // WAJIB untuk Google Apps Script
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Network response was not ok");
+                return response.json();
+            })
+            .then(data => {
+                // Update indikator status hijau
+                document.getElementById('syncStatus').innerText = "Real-Time Sync Active";
+                document.getElementById('syncDot').className = "relative inline-flex rounded-full h-2 w-2 bg-green-500";
+
+                allData = data.map(item => {
+                    // Konversi Timestamp ke format YYYY-MM-DD
+                    let formattedDate = "";
+                    const rawTime = item.Timestamp || item.timestamp || "";
+                    
+                    if (rawTime) {
+                        const dateObj = new Date(rawTime);
+                        if (!isNaN(dateObj.getTime())) {
+                            // Format Lokal YYYY-MM-DD
+                            const year = dateObj.getFullYear();
+                            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                            const day = String(dateObj.getDate()).padStart(2, '0');
+                            formattedDate = `${year}-${month}-${day}`;
+                        } else {
+                            // Parse string manual jika Date() gagal (misal: "9/2/2026 15:26:57")
+                            const datePart = String(rawTime).split(" ")[0];
+                            const parts = datePart.split("/");
+                            if (parts.length === 3) {
+                                formattedDate = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
                             }
                         }
+                    }
 
-                        // Format Link Foto Google Drive
-                        let photoUrl = item["Link Foto Drive"] || item["Foto (Tamu)"] || "";
-                        if (photoUrl.includes("drive.google.com")) {
-                            const match = photoUrl.match(/\/d\/([^\/]+)/);
-                            if (match && match[1]) {
-                                photoUrl = `https://lh3.googleusercontent.com/d/${match[1]}`;
-                            }
+                    // Format URL Foto Google Drive
+                    let photoUrl = item["Link Foto Drive"] || item["Foto (Tamu)"] || item["Foto"] || "";
+                    if (photoUrl && photoUrl.includes("drive.google.com")) {
+                        const match = photoUrl.match(/\/d\/([^\/]+)/) || photoUrl.match(/id=([^&]+)/);
+                        if (match && match[1]) {
+                            photoUrl = `https://lh3.googleusercontent.com/d/${match[1]}`;
                         }
+                    }
 
-                        return {
-                            timestamp: item.Timestamp || "",
-                            tanggal: formattedDate,
-                            nama: item["Nama Pengunjung"] || "-",
-                            instansi: item["Asal Instansi/Pekerjaan"] || "-",
-                            telepon: item["Nomor Telepon"] || "-",
-                            tujuan: item["Tujuan / Unit"] || "-",
-                            keperluan: item.Keperluan || "-",
-                            foto: photoUrl
-                        };
-                    });
+                    return {
+                        timestamp: rawTime,
+                        tanggal: formattedDate,
+                        nama: item["Nama Pengunjung"] || item["Nama"] || "-",
+                        instansi: item["Asal Instansi/Pekerjaan"] || item["Asal Instansi"] || "-",
+                        telepon: item["Nomor Telepon"] || item["No HP"] || "-",
+                        tujuan: item["Tujuan / Unit"] || item["Tujuan"] || "-",
+                        keperluan: item["Keperluan"] || "-",
+                        foto: photoUrl
+                    };
+                });
 
-                    renderChart();
-                    filterData();
-                })
-                .catch(error => console.error("Gagal mengambil data real-time:", error));
+                renderChart();
+                filterData();
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+                document.getElementById('syncStatus').innerText = "Sync Error / Connecting...";
+                document.getElementById('syncDot').className = "relative inline-flex rounded-full h-2 w-2 bg-red-500";
+            });
         }
 
-        // 2. FUNGSI FILTER DATA BERDASARKAN TANGGAL DIPILIH
         function filterData() {
             const selectedDate = document.getElementById('filterTanggal').value;
             const tabelBody = document.getElementById('tabelPengunjung');
@@ -215,4 +248,79 @@
 
             filteredData.forEach(item => {
                 const imgTag = item.foto 
-                    ? `<img src="${item.foto}" alt="${item.nama}"
+                    ? `<img src="${item.foto}" alt="${item.nama}" 
+                        class="w-16 h-16 rounded-lg object-cover border-2 border-blue-500 cursor-pointer shadow hover:scale-105 transition transform"
+                        onclick="openModal('${item.foto}')"
+                        onerror="this.src='https://via.placeholder.com/150?text=No+Photo'">`
+                    : `<div class="w-16 h-16 rounded-lg bg-gray-200 flex items-center justify-center text-gray-400 text-xs text-center p-1">Tanpa Foto</div>`;
+
+                const row = `
+                    <tr class="hover:bg-blue-50 transition">
+                        <td class="py-3 px-4">${imgTag}</td>
+                        <td class="py-3 px-4 font-semibold text-gray-800">${item.nama}</td>
+                        <td class="py-3 px-4">${item.instansi}</td>
+                        <td class="py-3 px-4 text-gray-600">${item.telepon}</td>
+                        <td class="py-3 px-4">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded">
+                                ${item.tujuan}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-gray-700">${item.keperluan}</td>
+                    </tr>
+                `;
+                tabelBody.innerHTML += row;
+            });
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('visitorChart').getContext('2d');
+            
+            const dateCounts = {};
+            allData.forEach(item => {
+                if (item.tanggal) {
+                    dateCounts[item.tanggal] = (dateCounts[item.tanggal] || 0) + 1;
+                }
+            });
+
+            const labels = Object.keys(dateCounts).sort();
+            const dataCounts = labels.map(date => dateCounts[date]);
+
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Jumlah Pengunjung',
+                        data: dataCounts,
+                        backgroundColor: 'rgba(30, 58, 138, 0.7)',
+                        borderColor: 'rgba(30, 58, 138, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0 } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function openModal(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('photoModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('photoModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
