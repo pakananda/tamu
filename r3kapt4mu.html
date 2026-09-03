@@ -16,13 +16,19 @@
 <body class="bg-gray-100 font-sans text-gray-800">
 
     <!-- Header -->
-    <header class="bg-blue-900 text-white shadow-lg">
+    <header class="bg-blue-900 text-white shadow-lg sticky top-0 z-40">
         <div class="container mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center">
             <div class="flex items-center space-x-3 mb-4 md:mb-0">
                 <i class="fa-solid fa-school text-3xl text-yellow-400"></i>
                 <div>
                     <h1 class="text-xl font-bold leading-tight">SMA Negeri Taruna Nala Jawa Timur</h1>
-                    <p class="text-sm text-blue-200">Dashboard Data Kunjungan Tamu</p>
+                    <div class="flex items-center space-x-2">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        <p class="text-xs text-blue-200">Real-Time Sync Active</p>
+                    </div>
                 </div>
             </div>
             
@@ -78,7 +84,7 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-blue-900 text-white text-xs uppercase tracking-wider">
-                            <th class="py-3 px-4">Foto</th>
+                            <th class="py-3 px-4 w-32">Foto Tamu</th>
                             <th class="py-3 px-4">Nama Pengunjung</th>
                             <th class="py-3 px-4">Asal Instansi/Pekerjaan</th>
                             <th class="py-3 px-4">Nomor Telepon</th>
@@ -97,32 +103,43 @@
 
     </main>
 
+    <!-- Modal Pop-up Foto Besar -->
+    <div id="photoModal" class="fixed inset-0 bg-black bg-opacity-75 hidden flex items-center justify-center z-50 p-4" onclick="closeModal()">
+        <div class="relative max-w-2xl max-h-[90vh] bg-white rounded-lg p-2 overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
+            <button onclick="closeModal()" class="absolute top-2 right-2 text-white bg-red-600 hover:bg-red-700 rounded-full w-8 h-8 flex items-center justify-center text-bold shadow">✕</button>
+            <img id="modalImage" src="" alt="Foto Tamu Besar" class="max-h-[80vh] w-auto mx-auto rounded object-contain">
+        </div>
+    </div>
+
     <script>
-        // URL CSV Google Sheets Anda
         const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRV5RobnV2WuTWj-Ox_BmzcBmz5XxlUs72gSCsp7XsiPX2soWVDgJCh7gg8tBmXAiWfiBSeACfRMl8N/pub?gid=0&single=true&output=csv";
 
         let allData = [];
         let myChart = null;
 
-        // Inisialisasi saat aplikasi pertama kali dibuka
         document.addEventListener("DOMContentLoaded", () => {
-            // Set tanggal input ke hari ini secara default
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('filterTanggal').value = today;
 
-            // Panggil fungsi pembacaan CSV
+            // Load data pertama kali
             fetchDataFromSheet();
+
+            // SINKRONISASI REAL-TIME: Ambil data baru secara otomatis setiap 15 detik
+            setInterval(() => {
+                fetchDataFromSheet(true);
+            }, 15000); 
         });
 
-        // 1. FUNGSI UNTUK MENGAMBIL DATA DARI CSV GOOGLE SHEETS
-        function fetchDataFromSheet() {
-            Papa.parse(csvUrl, {
+        function fetchDataFromSheet(isSilent = false) {
+            // Menambahkan timestamp URL parameter agar terhindar dari kuki browser/cache lama
+            const cacheBusterUrl = csvUrl + "&t=" + new Date().getTime();
+
+            Papa.parse(cacheBusterUrl, {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
                     allData = results.data.map(item => {
-                        // Mengonversi Timestamp (misal: "9/2/2026 15:26:57") menjadi format YYYY-MM-DD
                         let formattedDate = "";
                         if (item.Timestamp) {
                             const datePart = item.Timestamp.split(" ")[0];
@@ -135,7 +152,6 @@
                             }
                         }
 
-                        // Mengonversi URL Google Drive agar gambarnya bisa langsung dipanggil <img>
                         let photoUrl = item["Link Foto Drive"] || item["Foto (Tamu)"] || "";
                         if (photoUrl.includes("drive.google.com")) {
                             const match = photoUrl.match(/\/d\/([^\/]+)/);
@@ -156,14 +172,12 @@
                         };
                     });
 
-                    // Tampilkan grafik dan filter tabel
                     renderChart();
                     filterData();
                 }
             });
         }
 
-        // 2. FUNGSI UNTUK MEMFILTER TABEL BERDASARKAN TANGGAL DIPILIH
         function filterData() {
             const selectedDate = document.getElementById('filterTanggal').value;
             const tabelBody = document.getElementById('tabelPengunjung');
@@ -171,20 +185,16 @@
             const labelTanggal = document.getElementById('labelTanggalSelected');
             const badgeCount = document.getElementById('badgeCount');
 
-            // Format tanggal Indonesia untuk label
             const dateObj = new Date(selectedDate);
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
             const formattedDateStr = isNaN(dateObj) ? selectedDate : dateObj.toLocaleDateString('id-ID', options);
             labelTanggal.innerText = `Tanggal: ${formattedDateStr}`;
 
-            // Filter array data berdasarkan tanggal
             const filteredData = allData.filter(item => item.tanggal === selectedDate);
 
-            // Update Total
             totalText.innerText = filteredData.length;
             badgeCount.innerText = `${filteredData.length} Data Ditemukan`;
 
-            // Reset isi tabel
             tabelBody.innerHTML = "";
 
             if (filteredData.length === 0) {
@@ -199,11 +209,14 @@
                 return;
             }
 
-            // Render isi baris tabel
             filteredData.forEach(item => {
+                // FOTO LEBIH BESAR: Ukuran ditingkatkan menjadi 80x80px (w-20 h-20) + Fitur Klik Pop-Up
                 const imgTag = item.foto 
-                    ? `<img src="${item.foto}" alt="${item.nama}" class="w-12 h-12 rounded-full object-cover border-2 border-blue-500" onerror="this.src='https://via.placeholder.com/100?text=No+Image'">`
-                    : `<div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">No Pic</div>`;
+                    ? `<img src="${item.foto}" alt="${item.nama}" 
+                        class="w-20 h-20 rounded-lg object-cover border-2 border-blue-500 cursor-pointer shadow hover:scale-105 transition transform"
+                        onclick="openModal('${item.foto}')"
+                        onerror="this.src='https://via.placeholder.com/150?text=No+Photo'">`
+                    : `<div class="w-20 h-20 rounded-lg bg-gray-200 flex items-center justify-center text-gray-400 text-xs text-center p-1">Tanpa Foto</div>`;
 
                 const row = `
                     <tr class="hover:bg-blue-50 transition">
@@ -223,11 +236,9 @@
             });
         }
 
-        // 3. FUNGSI UNTUK MEMBUAT GRAFIK REKAPITULASI
         function renderChart() {
             const ctx = document.getElementById('visitorChart').getContext('2d');
             
-            // Hitung frekuensi pengunjung per tanggal
             const dateCounts = {};
             allData.forEach(item => {
                 if (item.tanggal) {
@@ -264,6 +275,16 @@
                     plugins: { legend: { display: false } }
                 }
             });
+        }
+
+        // FUNGSI UNTUK MODAL ZOOM FOTO
+        function openModal(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('photoModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('photoModal').classList.add('hidden');
         }
     </script>
 </body>
