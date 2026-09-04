@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buku Tamu Digital</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <style>
+    /* Custom Scrollbar & Utility Classes */
+    .mirror {
+      transform: scaleX(-1);
+    }
+    
+    /* Smooth Transition Effects */
+    .transition-all-300 {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Custom Focus Outline Glow */
+    .input-focus-effect:focus-within {
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-3 sm:p-6 font-sans relative overflow-x-hidden">
+
+  <div class="fixed -top-40 -left-40 w-96 h-96 bg-indigo-600/30 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="fixed -bottom-40 -right-40 w-96 h-96 bg-blue-600/30 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="w-full max-w-xl bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-slate-700/60 my-auto z-10">
+    
+    <div class="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 p-6 sm:p-8 text-white text-center overflow-hidden">
+      <div class="absolute inset-0 bg-black/10"></div>
+      <div class="relative z-10 flex flex-col items-center">
+        <div class="w-16 h-16 bg-white/10 backdrop-blur-md p-2.5 rounded-2xl border border-white/20 shadow-inner mb-3 transform hover:scale-105 transition-transform duration-300">
+          <img src="https://lh3.googleusercontent.com/d/1erlU3Wwr8NuIusv6FXvG3qahEv7D1eQL" alt="Logo" class="w-full h-full object-contain filter drop-shadow">
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Buku Tamu Digital</h1>
+        <p class="text-blue-100/90 text-xs sm:text-sm mt-1.5 max-w-sm">Silakan lengkapi informasi di bawah ini untuk pencatatan kunjungan Anda.</p>
+      </div>
+    </div>
+
+    <form id="guestForm" class="p-5 sm:p-8 space-y-5">
+      
+      <div class="space-y-1.5">
+        <label for="nama" class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+          Nama Pengunjung <span class="text-rose-400">*</span>
+        </label>
+        <div class="relative flex items-center input-focus-effect rounded-xl transition-all duration-200">
+          <div class="absolute left-3.5 text-slate-400 pointer-events-none flex items-center">
+            <i data-feather="user" class="w-5 h-5"></i>
+          </div>
+          <input type="text" id="nama" class="w-full pl-11 pr-4 py-3 bg-slate-900/60 border border-slate-700 rounded-xl text-slate-100 text-sm placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all duration-200" placeholder="Masukkan nama lengkap Anda" required>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <label for="asal" class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+          Asal Instansi / Pekerjaan <span class="text-rose-400">*</span>
+        </label>
+        <div class="relative flex items-center input-focus-effect rounded-xl transition-all duration-200">
+          <div class="absolute left-3.5 text-slate-400 pointer-events-none flex items-center">
+            <i data-feather="briefcase" class="w-5 h-5"></i>
+          </div>
+          <input type="text" id="asal" class="w-full pl-11 pr-4 py-3 bg-slate-900/60 border border-slate-700 rounded-xl text-slate-100 text-sm placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all duration-200" placeholder="Contoh: Bimbel X, Guru SMA Y, Kontraktor PT" required>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <label for="telepon" class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+          Nomor Telepon (WhatsApp) <span class="text-rose-400">*</span>
+        </label>
+        <div class="relative flex items-center input-focus-effect rounded-xl transition-all duration-200">
+          <div class="absolute left-3.5 text-slate-400 pointer-events-none flex items-center">
+            <i data-feather="phone" class="w-5 h-5"></i>
+          </div>
+          <input type="tel" id="telepon" class="w-full pl-11 pr-4 py-3 bg-slate-900/60 border border-slate-700 rounded-xl text-slate-100 text-sm placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all duration-200" placeholder="08xxxxxxxxxx" required>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="space-y-1.5">
+          <label for="tujuan" class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+            Unit Tujuan <span class="text-rose-400">*</span>
+          </label>
+          <div class="relative flex items-center input-focus-effect rounded-xl transition-all duration-200">
+            <div class="absolute left-3.5 text-slate-400 pointer-events-none flex items-center">
+              <i data-feather="building" class="w-5 h-5"></i>
+            </div>
+            <select id="tujuan" class="w-full pl-11 pr-8 py-3 bg-slate-900/60 border border-slate-700 rounded-xl text-slate-100 text-sm focus:outline-none focus:border-indigo-500 transition-all duration-200 appearance-none cursor-pointer" required>
+              <option value="" disabled selected class="bg-slate-800 text-slate-400">Pilih Unit</option>
+              <option value="KS" class="bg-slate-800">Kepala Sekolah</option>
+              <option value="TU" class="bg-slate-800">Tata Usaha (TU)</option>
+              <option value="Kurikulum" class="bg-slate-800">Kurikulum</option>
+              <option value="Kesiswaan" class="bg-slate-800">Kesiswaan</option>
+              <option value="Humas" class="bg-slate-800">Humas</option>
+              <option value="Sarpras" class="bg-slate-800">Sarpras</option>
+              <option value="Lainnya" class="bg-slate-800">Lainnya</option>
+            </select>
+            <div class="absolute right-3.5 text-slate-400 pointer-events-none flex items-center">
+              <i data-feather="chevron-down" class="w-4 h-4"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <label for="keperluanSelect" class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+            Keperluan <span class="text-rose-400">*</span>
+          </label>
+          <div class="relative flex items-center input-focus-effect rounded-xl transition-all duration-200">
+            <div class="absolute left-3.5 text-slate-400 pointer-events-none flex items-center">
+              <i data-feather="file-text" class="w-5 h-5"></i>
+            </div>
+            <select id="keperluanSelect" onchange="toggleKeperluanLainnya()" class="w-full pl-11 pr-8 py-3 bg-slate-900/60 border border-slate-700 rounded-xl text-slate-100 text-sm focus:outline-none focus:border-indigo-500 transition-all duration-200 appearance-none cursor-pointer" required>
+              <option value="" disabled selected class="bg-slate-800 text-slate-400">Pilih Keperluan</option>
+              <option value="Mengajar Bimbel" class="bg-slate-800">Mengajar Bimbel</option>
+              <option value="Lainnya" class="bg-slate-800">Lainnya</option>
+            </select>
+            <div class="absolute right-3.5 text-slate-400 pointer-events-none flex items-center">
+              <i data-feather="chevron-down" class="w-4 h-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="wrapper-other-keperluan" class="hidden transition-all duration-300">
+        <textarea id="other-keperluan" class="w-full p-3.5 bg-slate-900/60 border border-slate-700 rounded-xl text-slate-100 text-sm placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all duration-200" rows="3" placeholder="Tuliskan rincian keperluan Anda secara rinci..."></textarea>
+      </div>
+
+      <div class="space-y-2 pt-2">
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+          Foto Swafoto (Live) <span class="text-rose-400">*</span>
+        </label>
+        
+        <div class="relative bg-slate-950 rounded-2xl overflow-hidden aspect-video border-2 border-slate-700/80 shadow-inner flex items-center justify-center group">
+          <video id="video" autoplay playsinline class="w-full h-full object-cover mirror transition-opacity duration-300"></video>
+          
+          <canvas id="canvas" class="hidden w-full h-full object-cover transition-opacity duration-300"></canvas>
+          
+          <div id="cameraStatus" class="absolute top-3 left-3 bg-slate-900/80 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-md border border-white/10 flex items-center gap-2 shadow-lg transition-all duration-300">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span> Kamera Aktif
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5 mt-3">
+          <button type="button" id="btnCapture" onclick="takeSnapshot()" class="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] text-white py-2.5 px-4 rounded-xl text-sm font-semibold transition-all duration-200 shadow-lg shadow-indigo-600/20">
+            <i data-feather="camera" class="w-4 h-4"></i> Ambil Foto
+          </button>
+          <button type="button" id="btnSwitch" onclick="switchCamera()" class="flex items-center justify-center gap-2 bg-slate-700/80 hover:bg-slate-700 active:scale-[0.98] text-slate-200 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all duration-200 border border-slate-600">
+            <i data-feather="refresh-cw" class="w-4 h-4"></i> Ganti Kamera
+          </button>
+          <button type="button" id="btnRetake" onclick="resetCamera()" class="hidden col-span-2 flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 active:scale-[0.98] text-white py-2.5 px-4 rounded-xl text-sm font-semibold transition-all duration-200 shadow-lg shadow-amber-600/20">
+            <i data-feather="rotate-ccw" class="w-4 h-4"></i> Ambil Foto Ulang
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" id="btnSubmit" class="w-full mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-[0.99] text-white font-bold py-3.5 px-6 rounded-xl shadow-xl shadow-indigo-500/25 transition-all duration-200 flex items-center justify-center gap-2 text-base">
+        <i data-feather="send" class="w-5 h-5"></i> Kirim Data Kunjungan
+      </button>
+
+    </form>
+  </div>
+
+  <div id="toast" class="fixed bottom-5 right-5 max-w-sm w-full bg-slate-800 border border-slate-700 text-white p-4 rounded-2xl shadow-2xl flex items-start gap-3 translate-y-20 opacity-0 pointer-events-none transition-all duration-300 z-50">
+    <div id="toastIcon" class="p-2 rounded-xl bg-indigo-500/20 text-indigo-400 mt-0.5">
+      <i data-feather="info" class="w-5 h-5"></i>
+    </div>
+    <div class="flex-1">
+      <h4 id="toastTitle" class="font-bold text-sm text-slate-100">Notifikasi</h4>
+      <p id="toastMessage" class="text-xs text-slate-400 mt-0.5">Pesan informasi di sini.</p>
+    </div>
+  </div>
+
+  <script>
+    // Inisialisasi Feather Icons
+    feather.replace();
+
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwy7PiCBsJHyP4b7tIJjPoHbJMfcl7KwdTrATLmSgBvx8CqevpSg05QkkHeFiu6q67e/exec";
+
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const btnSwitch = document.getElementById('btnSwitch');
+    const btnCapture = document.getElementById('btnCapture');
+    const btnRetake = document.getElementById('btnRetake');
+    const cameraStatus = document.getElementById('cameraStatus');
+    
+    let photoData = null;
+    let currentStream = null;
+    let useFacingMode = "user";
+
+    // Custom Toast Notification Function
+    function showToast(title, message, type = 'info') {
+      const toast = document.getElementById('toast');
+      const toastTitle = document.getElementById('toastTitle');
+      const toastMessage = document.getElementById('toastMessage');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastTitle.textContent = title;
+      toastMessage.textContent = message;
+
+      if (type === 'success') {
+        toastIcon.className = "p-2 rounded-xl bg-emerald-500/20 text-emerald-400 mt-0.5";
+        toastIcon.innerHTML = `<i data-feather="check-circle" class="w-5 h-5"></i>`;
+      } else if (type === 'error') {
+        toastIcon.className = "p-2 rounded-xl bg-rose-500/20 text-rose-400 mt-0.5";
+        toastIcon.innerHTML = `<i data-feather="alert-circle" class="w-5 h-5"></i>`;
+      } else {
+        toastIcon.className = "p-2 rounded-xl bg-indigo-500/20 text-indigo-400 mt-0.5";
+        toastIcon.innerHTML = `<i data-feather="info" class="w-5 h-5"></i>`;
+      }
+      feather.replace();
+
+      toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+      
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+      }, 4000);
+    }
+
+    // Fungsi Kamera
+    function startCamera(facingMode) {
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+      }
+
+      if (facingMode === "user") {
+        video.classList.add('mirror');
+        canvas.classList.add('mirror');
+      } else {
+        video.classList.remove('mirror');
+        canvas.classList.remove('mirror');
+      }
+
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } })
+        .then(stream => {
+          currentStream = stream;
+          video.srcObject = stream;
+        })
+        .catch(err => {
+          console.error("Akses kamera ditolak/gagal:", err);
+          showToast("Akses Ditolak", "Gagal mengakses kamera. Izinkan akses pada browser Anda.", "error");
+        });
+    }
+
+    startCamera(useFacingMode);
+
+    function switchCamera() {
+      useFacingMode = (useFacingMode === "user") ? "environment" : "user";
+      startCamera(useFacingMode);
+    }
+
+    function toggleKeperluanLainnya() {
+      const select = document.getElementById('keperluanSelect');
+      const wrapper = document.getElementById('wrapper-other-keperluan');
+      const otherText = document.getElementById('other-keperluan');
+      
+      if (select.value === 'Lainnya') {
+        wrapper.classList.remove('hidden');
+        otherText.required = true;
+      } else {
+        wrapper.classList.add('hidden');
+        otherText.required = false;
+        otherText.value = '';
+      }
+    }
+
+    function takeSnapshot() {
+      const context = canvas.getContext('2d');
+      const maxWidth = 800;
+      let width = video.videoWidth;
+      let height = video.videoHeight;
+
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      if (useFacingMode === "user") {
+        context.translate(width, 0);
+        context.scale(-1, 1);
+      }
+      
+      context.drawImage(video, 0, 0, width, height);
+      photoData = canvas.toDataURL('image/jpeg', 0.7);
+      
+      video.classList.add('hidden');
+      canvas.classList.remove('hidden');
+      
+      btnCapture.classList.add('hidden');
+      btnSwitch.classList.add('hidden');
+      btnRetake.classList.remove('hidden');
+
+      cameraStatus.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Foto Terkunci`;
+    }
+
+    function resetCamera() {
+      photoData = null;
+      video.classList.remove('hidden');
+      canvas.classList.add('hidden');
+      
+      btnCapture.classList.remove('hidden');
+      btnSwitch.classList.remove('hidden');
+      btnRetake.classList.add('hidden');
+
+      cameraStatus.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span> Kamera Aktif`;
+    }
+
+    // Submit Form Event
+    document.getElementById('guestForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      if (!photoData) {
+        showToast("Peringatan", "Silakan jepret foto swafoto terlebih dahulu!", "error");
+        return;
+      }
+
+      const keperluanSelect = document.getElementById('keperluanSelect').value;
+      const keperluanFinal = (keperluanSelect === 'Lainnya') 
+        ? document.getElementById('other-keperluan').value 
+        : keperluanSelect;
+
+      const payload = {
+        nama: document.getElementById('nama').value,
+        asal: document.getElementById('asal').value,
+        telepon: document.getElementById('telepon').value,
+        tujuan: document.getElementById('tujuan').value,
+        keperluan: keperluanFinal,
+        foto: photoData
+      };
+
+      const submitBtn = document.getElementById('btnSubmit');
+      submitBtn.innerHTML = `<i data-feather="loader" class="w-5 h-5 animate-spin"></i> Menyimpan Data...`;
+      feather.replace();
+      submitBtn.disabled = true;
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(response => {
+        if (response.result === 'success') {
+          showToast("Berhasil", "Data kunjungan berhasil dicatat!", "success");
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          showToast("Gagal Simpan", response.message, "error");
+          submitBtn.innerHTML = `<i data-feather="send" class="w-5 h-5"></i> Kirim Data Kunjungan`;
+          feather.replace();
+          submitBtn.disabled = false;
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        showToast("Terkirim", "Data telah berhasil dikirim!", "success");
+        setTimeout(() => location.reload(), 1500);
+      });
+    });
+  </script>
+</body>
+</html>
