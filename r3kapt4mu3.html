@@ -21,8 +21,8 @@
         
         /* Template Dokumen A4 PDF (Tersembunyi di Halaman Web Utama) */
         #pdfExportArea {
-            width: 280mm; /* A4 Landscape Width minus padding */
-            padding: 10mm;
+            width: 275mm; /* A4 Landscape Width minus padding */
+            padding: 8mm;
             background: #ffffff;
             font-family: Arial, sans-serif;
             color: #1a202c;
@@ -30,22 +30,22 @@
         
         .pdf-header {
             border-bottom: 2px solid #1e3a8a;
-            padding-bottom: 12px;
-            margin-bottom: 15px;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         
         .pdf-title {
-            font-size: 18pt;
+            font-size: 16pt;
             font-weight: bold;
             color: #1e3a8a;
             margin: 0;
         }
         
         .pdf-subtitle {
-            font-size: 11pt;
+            font-size: 10pt;
             color: #4b5563;
             margin-top: 2px;
         }
@@ -53,48 +53,56 @@
         .pdf-meta-box {
             background-color: #f0fdf4;
             border: 1px solid #bbf7d0;
-            padding: 10px 15px;
+            padding: 8px 12px;
             border-radius: 6px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
-            font-size: 10pt;
+            font-size: 9.5pt;
         }
         
         .pdf-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 9.5pt;
-            margin-top: 10px;
+            font-size: 8.5pt;
+            margin-top: 8px;
         }
         
         .pdf-table th {
             background-color: #1e3a8a;
             color: #ffffff;
             text-align: left;
-            padding: 8px 10px;
+            padding: 6px 8px;
             font-weight: bold;
-            font-size: 9pt;
+            font-size: 8.5pt;
             text-transform: uppercase;
         }
         
         .pdf-table td {
-            padding: 8px 10px;
+            padding: 6px 8px;
             border-bottom: 1px solid #e5e7eb;
-            vertical-align: top;
+            vertical-align: middle;
         }
         
         .pdf-table tr:nth-child(even) {
             background-color: #f9fafb;
         }
+
+        .pdf-img {
+            width: 42px;
+            height: 42px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+        }
         
         .pdf-footer {
-            margin-top: 20px;
+            margin-top: 15px;
             text-align: right;
             font-size: 8pt;
             color: #6b7280;
             border-top: 1px solid #e5e7eb;
-            padding-top: 8px;
+            padding-top: 6px;
         }
     </style>
 </head>
@@ -190,7 +198,8 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-blue-900 text-white text-xs uppercase tracking-wider">
-                            <th class="py-3 px-4 w-28">Foto Tamu</th>
+                            <th class="py-3 px-4 w-24">Foto Tamu</th>
+                            <th class="py-3 px-4 w-28">Jam Masuk</th>
                             <th class="py-3 px-4">Nama Pengunjung</th>
                             <th class="py-3 px-4">Asal Instansi/Pekerjaan</th>
                             <th class="py-3 px-4">Nomor Telepon</th>
@@ -200,7 +209,7 @@
                     </thead>
                     <tbody id="tabelPengunjung" class="divide-y divide-gray-200 text-sm">
                         <tr>
-                            <td colspan="6" class="text-center py-8 text-gray-500">
+                            <td colspan="7" class="text-center py-8 text-gray-500">
                                 <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-blue-600"></i><br>
                                 Memuat data real-time...
                             </td>
@@ -229,7 +238,7 @@
                     <div class="pdf-subtitle">SMA Negeri Taruna Nala Jawa Timur</div>
                 </div>
                 <div style="text-align: right; font-size: 8pt; color: #6b7280;">
-                    Dokumen Resmi Sistem Informasi Buku Tamu
+                    Dokumen Resmi Buku Tamu
                 </div>
             </div>
 
@@ -241,12 +250,14 @@
             <table class="pdf-table">
                 <thead>
                     <tr>
-                        <th style="width: 5%;">No</th>
-                        <th style="width: 22%;">Nama Pengunjung</th>
-                        <th style="width: 23%;">Asal Instansi / Pekerjaan</th>
-                        <th style="width: 15%;">Nomor Telepon</th>
-                        <th style="width: 15%;">Tujuan / Unit</th>
-                        <th style="width: 20%;">Keperluan</th>
+                        <th style="width: 4%;">No</th>
+                        <th style="width: 10%;">Foto</th>
+                        <th style="width: 10%;">Jam</th>
+                        <th style="width: 18%;">Nama Pengunjung</th>
+                        <th style="width: 20%;">Asal Instansi</th>
+                        <th style="width: 12%;">No Telepon</th>
+                        <th style="width: 12%;">Tujuan / Unit</th>
+                        <th style="width: 14%;">Keperluan</th>
                     </tr>
                 </thead>
                 <tbody id="pdfTabelBody">
@@ -296,17 +307,31 @@
 
                 allData = data.map(item => {
                     let formattedDate = "";
+                    let formattedTime = "-";
                     const rawTime = item.Timestamp || item.timestamp || "";
                     
                     if (rawTime) {
                         const dateObj = new Date(rawTime);
                         if (!isNaN(dateObj.getTime())) {
+                            // Tanggal YYYY-MM-DD
                             const year = dateObj.getFullYear();
                             const month = String(dateObj.getMonth() + 1).padStart(2, '0');
                             const day = String(dateObj.getDate()).padStart(2, '0');
                             formattedDate = `${year}-${month}-${day}`;
+
+                            // Jam HH:MM:SS
+                            const hours = String(dateObj.getHours()).padStart(2, '0');
+                            const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                            const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+                            formattedTime = `${hours}:${minutes}:${seconds}`;
                         } else {
-                            const datePart = String(rawTime).split(" ")[0];
+                            // Parse string manual jika Date() gagal (misal: "9/2/2026 15:26:57")
+                            const partsSpace = String(rawTime).split(" ");
+                            const datePart = partsSpace[0];
+                            if (partsSpace[1]) {
+                                formattedTime = partsSpace[1]; // Ambil bagian jam
+                            }
+                            
                             const parts = datePart.split("/");
                             if (parts.length === 3) {
                                 formattedDate = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
@@ -325,6 +350,7 @@
                     return {
                         timestamp: rawTime,
                         tanggal: formattedDate,
+                        jam: formattedTime,
                         nama: item["Nama Pengunjung"] || item["Nama"] || "-",
                         instansi: item["Asal Instansi/Pekerjaan"] || item["Asal Instansi"] || "-",
                         telepon: item["Nomor Telepon"] || item["No HP"] || "-",
@@ -366,7 +392,7 @@
             if (filteredData.length === 0) {
                 tabelBody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="text-center py-8 text-gray-500">
+                        <td colspan="7" class="text-center py-8 text-gray-500">
                             <i class="fa-solid fa-folder-open text-3xl mb-2 text-gray-300"></i><br>
                             Tidak ada data pengunjung pada tanggal ini.
                         </td>
@@ -378,14 +404,15 @@
             filteredData.forEach(item => {
                 const imgTag = item.foto 
                     ? `<img src="${item.foto}" alt="${item.nama}" 
-                        class="w-16 h-16 rounded-lg object-cover border-2 border-blue-500 cursor-pointer shadow hover:scale-105 transition transform"
+                        class="w-14 h-14 rounded-lg object-cover border-2 border-blue-500 cursor-pointer shadow hover:scale-105 transition transform"
                         onclick="openModal('${item.foto}')"
                         onerror="this.src='https://via.placeholder.com/150?text=No+Photo'">`
-                    : `<div class="w-16 h-16 rounded-lg bg-gray-200 flex items-center justify-center text-gray-400 text-xs text-center p-1">Tanpa Foto</div>`;
+                    : `<div class="w-14 h-14 rounded-lg bg-gray-200 flex items-center justify-center text-gray-400 text-xs text-center p-1">Tanpa Foto</div>`;
 
                 const row = `
                     <tr class="hover:bg-blue-50 transition">
                         <td class="py-3 px-4">${imgTag}</td>
+                        <td class="py-3 px-4 font-mono text-xs text-blue-900 font-semibold">${item.jam} WIB</td>
                         <td class="py-3 px-4 font-semibold text-gray-800">${item.nama}</td>
                         <td class="py-3 px-4">${item.instansi}</td>
                         <td class="py-3 px-4 text-gray-600">${item.telepon}</td>
@@ -476,9 +503,15 @@
             pdfTabelBody.innerHTML = "";
 
             filteredData.forEach((item, index) => {
+                const imgPdf = item.foto 
+                    ? `<img src="${item.foto}" class="pdf-img" crossorigin="anonymous" onerror="this.src='https://via.placeholder.com/100?text=No+Photo'">`
+                    : `<span style="color:#94a3b8; font-size:7pt;">Tanpa Foto</span>`;
+
                 const pdfRow = `
                     <tr>
                         <td style="text-align: center;">${index + 1}</td>
+                        <td style="text-align: center;">${imgPdf}</td>
+                        <td style="font-weight: bold; color: #1e3a8a;">${item.jam}</td>
                         <td style="font-weight: bold;">${item.nama}</td>
                         <td>${item.instansi}</td>
                         <td>${item.telepon}</td>
@@ -494,10 +527,10 @@
 
             // Opsi html2pdf untuk A4 Landscape
             const opt = {
-                margin:       [10, 10, 10, 10], // top, left, bottom, right in mm
+                margin:       [8, 8, 8, 8], // top, left, bottom, right in mm
                 filename:     `Laporan_Kunjungan_Tamu_${selectedDate}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
+                html2canvas:  { scale: 2, useCORS: true, allowTaint: true },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
             };
 
